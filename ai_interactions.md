@@ -10,15 +10,19 @@
 
 **What task did you give the agent?**
 
-<!-- Describe the goal you asked the agent to accomplish -->
+I asked Claude Code to plan and implement a High Score tracker that saves the best score per difficulty level across games.
 
 **What did the agent do?**
 
-<!-- List the steps the agent took (files edited, commands run, etc.) -->
+1. Read app.py to understand the current session state and UI structure before making any changes
+2. Added load_high_scores() and save_high_score() to logic_utils.py, using a high_scores.json file to persist scores between sessions
+3. Updated the import line in app.py to include the two new functions
+4. Added a High Scores section to the sidebar showing best scores for all three difficulties, with a crown next to the active difficulty
+5. Updated the win handler to call save_high_score() and display "New high score!" if the player broke their record
 
 **What did you have to verify or fix manually?**
 
-<!-- Describe anything the agent got wrong or that required human review -->
+The agent showed the plan before writing any code and asked for confirmation, which I approved. After implementation I ran the app manually to verify the sidebar updated correctly and the JSON file was created on first win. The agent also noted that linter hints appeared during editing (unused imports) but explained they would resolve once the functions were wired into the UI — which they did.
 
 ---
 
@@ -39,21 +43,66 @@
 > Document your use of AI for linting or code style improvements.
 
 **Prompt used:**
+**Challenge 1**
+```
+Prompt 1 (identifying edge cases):
+
+"I finished fixing the bugs. What are some edge case inputs that could still break the game? Like weird numbers the player might type?"
+
+Prompt 2 (generating the tests):
+
+"Can you write pytest cases for those three edge cases and add them to my existing test file?"
+
+Prompt 3 (following up on results):
+
+"All 10 tests passed. But do the edge case tests actually enforce a fix or just document the current behavior?"
 
 ```
-<!-- Paste the prompt you gave the AI -->
+**Challenge 3**
+```
+Prompt 1 (Adding docstrings to every function):
+
+I want you to add to add professional-grade docstrings to every function in logic_utils.py. but before you do that can you explain what it is
+
+Prompt 2 (Reviewing the code):
+
+I want you to review your code for PEP 8 style compliance and apply its suggestions to resolve any formatting or naming issues it identifies.
+
 ```
 
 **Linting output before:**
 
+**Challenge 3**
 ```
-<!-- Paste relevant linter warnings/errors -->
+logic_utils.py:24:80: E501 line too long (85 > 79 characters)
+logic_utils.py:59:80: E501 line too long (147 > 79 characters)
+logic_utils.py:77:80: E501 line too long (87 > 79 characters)
+logic_utils.py:108:80: E501 line too long (150 > 79 characters)
+
 ```
 
 **Changes applied:**
 
-<!-- Describe what you changed based on the AI's suggestions -->
+**Challenge 3**
+All four violations were E501 — lines exceeding the 79-character limit. The AI ran pycodestyle to identify them, then wrapped the offending lines across multiple lines. The affected lines were all inside docstrings and inline comments, not logic code. After applying the changes, re-running pycodestyle logic_utils.py returned no violations.
 
+**Challenge 4**
+UI Enhancements
+
+Three visual improvements were added to make the game more informative and easier to read:
+
+1. Color-coded hint messages
+The hint display in app.py now uses Streamlit's colored alert components instead of a plain st.warning for every guess. A "Too Low" result renders in blue (st.info) and a "Too High" result renders in orange (st.warning), giving the player an immediate visual cue about which direction to go.
+
+2. Hot/Cold proximity indicator
+A new function get_hotcold_label(guess, secret, low, high) was added to logic_utils.py. It calculates how close the guess is to the secret as a percentage of the difficulty range and returns one of four labels shown alongside the hint:
+
+🔥 Burning hot — within 5% of the range
+♨️ Warm — within 15%
+🌡️ Lukewarm — within 35%
+🧊 Ice cold — beyond 35%
+3. Session summary table
+After each game ends (win or loss), a summary table is displayed using st.table() in app.py. It shows every attempt in order, including the guess value, the outcome (Too Low / Too High / Win), and the hot/cold rating for that guess.
 ---
 
 ## Model Comparison (SF11)
