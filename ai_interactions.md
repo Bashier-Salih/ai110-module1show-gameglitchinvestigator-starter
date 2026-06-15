@@ -86,23 +86,6 @@ logic_utils.py:108:80: E501 line too long (150 > 79 characters)
 **Challenge 3**
 All four violations were E501 — lines exceeding the 79-character limit. The AI ran pycodestyle to identify them, then wrapped the offending lines across multiple lines. The affected lines were all inside docstrings and inline comments, not logic code. After applying the changes, re-running pycodestyle logic_utils.py returned no violations.
 
-**Challenge 4**
-UI Enhancements
-
-Three visual improvements were added to make the game more informative and easier to read:
-
-1. Color-coded hint messages
-The hint display in app.py now uses Streamlit's colored alert components instead of a plain st.warning for every guess. A "Too Low" result renders in blue (st.info) and a "Too High" result renders in orange (st.warning), giving the player an immediate visual cue about which direction to go.
-
-2. Hot/Cold proximity indicator
-A new function get_hotcold_label(guess, secret, low, high) was added to logic_utils.py. It calculates how close the guess is to the secret as a percentage of the difficulty range and returns one of four labels shown alongside the hint:
-
-🔥 Burning hot — within 5% of the range
-♨️ Warm — within 15%
-🌡️ Lukewarm — within 35%
-🧊 Ice cold — beyond 35%
-3. Session summary table
-After each game ends (win or loss), a summary table is displayed using st.table() in app.py. It shows every attempt in order, including the guess value, the outcome (Too Low / Too High / Win), and the hot/cold rating for that guess.
 ---
 
 ## Model Comparison (SF11)
