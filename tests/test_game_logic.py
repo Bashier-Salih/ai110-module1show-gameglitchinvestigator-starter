@@ -1,4 +1,4 @@
-from logic_utils import check_guess, get_range_for_difficulty
+from logic_utils import check_guess, get_range_for_difficulty, parse_guess
 
 def test_winning_guess():
     # If the secret is 50 and guess is 50, it should be a win
@@ -44,3 +44,21 @@ def test_hard_range_is_harder_than_normal():
     assert hard_high > normal_high, (
         f"Hard upper bound ({hard_high}) must exceed Normal upper bound ({normal_high})"
     )
+
+
+# --- Edge case tests ---
+
+def test_negative_number_rejected():
+    # Negative numbers are outside the valid range (min is 1); parse_guess should reject them
+    ok, value, _ = parse_guess("-5")
+    assert not ok or value < 1, "Negative guess should be invalid"
+
+def test_extremely_large_number_rejected():
+    # Numbers far above any difficulty's upper bound should be flagged as out of range
+    ok, value, _ = parse_guess("999999999")
+    assert not ok or value > 200, "Extremely large guess should be out of range"
+
+def test_decimal_rounds_to_zero_rejected():
+    # 0.4 rounds to 0, which is below the minimum valid guess of 1
+    ok, value, _ = parse_guess("0.4")
+    assert not ok or value < 1, "Decimal rounding to 0 should be invalid"
