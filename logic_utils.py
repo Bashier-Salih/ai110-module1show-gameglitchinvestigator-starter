@@ -1,3 +1,27 @@
+import json
+import os
+
+HIGH_SCORES_FILE = "high_scores.json"
+
+
+def load_high_scores() -> dict:
+    if not os.path.exists(HIGH_SCORES_FILE):
+        return {"Easy": 0, "Normal": 0, "Hard": 0}
+    with open(HIGH_SCORES_FILE, "r") as f:
+        return json.load(f)
+
+
+def save_high_score(difficulty: str, score: int) -> bool:
+    """Save score if it beats the current high score. Returns True if a new record was set."""
+    scores = load_high_scores()
+    if score > scores.get(difficulty, 0):
+        scores[difficulty] = score
+        with open(HIGH_SCORES_FILE, "w") as f:
+            json.dump(scores, f)
+        return True
+    return False
+
+
 def get_range_for_difficulty(difficulty: str):
     """Return (low, high) inclusive range for a given difficulty."""
     if difficulty == "Easy":

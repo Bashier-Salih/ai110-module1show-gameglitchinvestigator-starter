@@ -1,6 +1,6 @@
 import random
 import streamlit as st
-from logic_utils import get_range_for_difficulty, parse_guess, check_guess, update_score
+from logic_utils import get_range_for_difficulty, parse_guess, check_guess, update_score, load_high_scores, save_high_score
 
 st.set_page_config(page_title="Glitchy Guesser", page_icon="🎮")
 
@@ -26,6 +26,14 @@ low, high = get_range_for_difficulty(difficulty)
 
 st.sidebar.caption(f"Range: {low} to {high}")
 st.sidebar.caption(f"Attempts allowed: {attempt_limit}")
+
+high_scores = load_high_scores()
+st.sidebar.divider()
+st.sidebar.subheader("High Scores")
+for diff in ["Easy", "Normal", "Hard"]:
+    best = high_scores.get(diff, 0)
+    marker = " 👑" if diff == difficulty else ""
+    st.sidebar.caption(f"{diff}: {best}{marker}")
 
 if "secret" not in st.session_state:
     st.session_state.secret = random.randint(low, high)
@@ -110,9 +118,11 @@ if submit:
         if outcome == "Win":
             st.balloons()
             st.session_state.status = "won"
+            is_new_record = save_high_score(difficulty, st.session_state.score)
             st.success(
                 f"You won! The secret was {st.session_state.secret}. "
                 f"Final score: {st.session_state.score}"
+                + (" New high score!" if is_new_record else "")
             )
         else:
             if st.session_state.attempts >= attempt_limit:
