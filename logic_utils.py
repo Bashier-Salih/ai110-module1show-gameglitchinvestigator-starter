@@ -40,6 +40,33 @@ def save_high_score(difficulty: str, score: int) -> bool:
     return False
 
 
+def get_hotcold_label(guess: int, secret: int, low: int, high: int) -> str:
+    """
+    Return a hot/cold emoji label based on how close the guess is to
+    the secret, relative to the difficulty range.
+
+    Args:
+        guess: The integer the player submitted.
+        secret: The target number.
+        low: The minimum value of the current difficulty range.
+        high: The maximum value of the current difficulty range.
+
+    Returns:
+        A string with an emoji and label, e.g. "🔥 Burning hot!".
+    """
+    span = high - low
+    if span == 0:
+        return ""
+    proximity = abs(guess - secret) / span
+    if proximity <= 0.05:
+        return "🔥 Burning hot!"
+    if proximity <= 0.15:
+        return "♨️ Warm"
+    if proximity <= 0.35:
+        return "🌡️ Lukewarm"
+    return "🧊 Ice cold"
+
+
 def get_range_for_difficulty(difficulty: str):
     """
     Return the inclusive numeric range for a given difficulty level.

@@ -1,6 +1,6 @@
 import random
 import streamlit as st
-from logic_utils import get_range_for_difficulty, parse_guess, check_guess, update_score, load_high_scores, save_high_score
+from logic_utils import get_range_for_difficulty, parse_guess, check_guess, update_score, load_high_scores, save_high_score, get_hotcold_label
 
 st.set_page_config(page_title="Glitchy Guesser", page_icon="🎮")
 
@@ -50,6 +50,9 @@ if "status" not in st.session_state:
 if "history" not in st.session_state:
     st.session_state.history = []
 
+if "history_details" not in st.session_state:
+    st.session_state.history_details = []
+
 st.subheader("Make a guess")
 
 st.info(
@@ -88,6 +91,9 @@ if st.session_state.status != "playing":
         st.success("You already won. Start a new game to play again.")
     else:
         st.error("Game over. Start a new game to try again.")
+    if st.session_state.history_details:
+        st.subheader("Session Summary")
+        st.table(st.session_state.history_details)
     st.stop()
 
 if submit:
@@ -105,9 +111,20 @@ if submit:
         secret = st.session_state.secret
 
         outcome, message = check_guess(guess_int, secret)
+        hotcold = get_hotcold_label(guess_int, secret, low, high)
 
         if show_hint:
-            st.warning(message)
+            if outcome == "Too Low":
+                st.info(f"{message}  {hotcold}")
+            elif outcome == "Too High":
+                st.warning(f"{message}  {hotcold}")
+
+        st.session_state.history_details.append({
+            "Attempt": st.session_state.attempts,
+            "Guess": guess_int,
+            "Result": outcome,
+            "Hot/Cold": hotcold,
+        })
 
         st.session_state.score = update_score(
             current_score=st.session_state.score,
